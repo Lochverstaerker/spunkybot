@@ -53,35 +53,86 @@ def gunfight_can_use_silencer(loadout):
 
 def gunfight_loadout_generate(loadouts=[]):
 
-        if loadouts != []:
-            return random.choice(loadouts)
+    if loadouts != []:
+        return random.choice(loadouts)
 
-        gearstring = list("AAAARWA")
+    gearstring = list("AAAARWA")
 
-        pick_primary = random.randint(0,1)
-        pick_secondary = random.randint(0,1)
-        pick_sidearm = pick_nade = pick_item = 0
-        if not (pick_primary and pick_secondary):
-            pick_sidearm = random.randint(0,1)
-            pick_nade = random.randint(0,1)
-            pick_item = random.randint(0,1) if not (pick_nade and (pick_primary or pick_secondary)) else 0
+    p_knife = 0.05
 
-	if pick_sidearm:
+    p_MSP = 0.33/4 #pick 0
+    p_MS = 0.33/4 #pick 1
+    p_MP = 0.33/4 #pick 2
+    p_M = 0.33/4 #pick 3
+    p_SP = 0.33/2 #pick 4
+    p_S = 0.33/2 #pick 5
+    p_P = 0.33 #pick 6
+
+    p_nades = 0.5
+
+    pick = -1
+    if not(random.randint(1,100) <= p_knife*100): #not knife only
+        try:
+            pick = random.choice([0]*(int)(p_MSP*100) + [1]*(int)(p_MS*100) + [2]*(int)(p_MP*100) + [3]*(int)(p_M*100) + [4]*(int)(p_SP*100) + [5]*(int)(p_S*100) + [6]*(int)(p_P*100))
+        except: #default values
+            pick = random.choice([0]*(int)(.33/4*100) + [1]*(int)(.33/4*100) + [2]*(int)(.33/4*100) + [3]*(int)(.33/4*100) + [4]*(int)(.33/2*100) + [5]*(int)(.33/2*100) + [6]*(int)(.33*100))
+        if (pick == 0): #main, secondary, pistol
             gearstring[0] = random.choice(gear_type["sidearm"])
-	if pick_primary:
-            gearstring[1] = random.choice(gear_type["primary"]+gear_type["secondary"])
-	if pick_secondary and (gearstring[1] is not 'c'):
+            gearstring[1] = random.choice(gear_type["primary"])
+            while (gearstring[1] == 'c'): # no negev
+                gearstring[1] = random.choice(gear_type["primary"])
             gearstring[2] = random.choice(gear_type["secondary"])
-	    while gearstring[2] == gearstring[1]:
-              gearstring[2] = random.choice(gear_type["secondary"])
-	if pick_nade:
-            gearstring[3] = random.choice(gear_type["grenade"])
-	if pick_item:
-            item = random.choice(gear_type["item"]) if not (pick_secondary and pick_primary) else 'A'
-            if (gunfight_can_use_laser(gearstring) and item == "V") or (gunfight_can_use_silencer(gearstring) and item == "U"):
-                gearstring[6] = item
-			
-        return("".join(gearstring))
+            while gearstring[2] == gearstring[1]:
+                gearstring[2] = random.choice(gear_type["secondary"])
+        elif (pick == 1): #main, secondary
+            gearstring[1] = random.choice(gear_type["primary"])
+            while (gearstring[1] == 'c'): # no negev
+                gearstring[1] = random.choice(gear_type["primary"])
+            gearstring[2] = random.choice(gear_type["secondary"])
+        elif (pick == 2): # main, pistol
+            gearstring[0] = random.choice(gear_type["sidearm"])
+            gearstring[1] = random.choice(gear_type["primary"])
+        elif (pick == 3): # main
+            gearstring[1] = random.choice(gear_type["primary"])
+        elif (pick == 4): #secondary, pistol
+            gearstring[0] = random.choice(gear_type["sidearm"])
+            gearstring[2] = random.choice(gear_type["secondary"])
+        elif (pick == 5): # secondary
+            gearstring[2] = random.choice(gear_type["secondary"])
+        else: #(pick == 6) # pistol
+            gearstring[0] = random.choice(gear_type["sidearm"])
+
+    #Refactor later
+    if not(pick == 0 or pick == 1):
+        if (pick == 2 or pick == 4): #generated 2 weapons
+            if random.randint(0,1):
+                if (random.randint(1,100) <= p_nades*100):
+                    gearstring[3] = random.choice(['O']*80 + ['Q']*20) # 80% chance for HE
+            else:
+                if (gunfight_can_use_laser(gearstring)):
+                    if (gunfight_can_use_silencer(gearstring)):
+                        if random.randint(0,1):
+                            gearstring[6] = 'U' #silencer
+                    elif random.randint(0,1):
+                        gearstring[6] = 'V' #laser
+                else:
+                    if random.randint(0,1):
+                        gearstring[6] = 'V'
+        else: #pick == 3 or pick == 5 or pick == 6 ; generated 1 weaponm
+            if (random.randint(1,100) <= p_nades*100):
+                gearstring[3] = random.choice(['O']*80 + ['Q']*20) # 80% chance for HE
+
+            if (gunfight_can_use_laser(gearstring)):
+                if (gunfight_can_use_silencer(gearstring)):
+                    if random.randint(0,1):
+                        gearstring[6] = 'U' #silencer
+                    elif random.randint(0,1):
+                        gearstring[6] = 'V' #laser
+                else:
+                    if random.randint(0,1):
+                        gearstring[6] = 'V'
+
+    return("".join(gearstring))
 
 def gunfight_print_loadout(gearstring,g_gear=""):
     textlist = []
