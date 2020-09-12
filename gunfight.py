@@ -64,9 +64,9 @@ def gunfight_loadout_generate(loadouts=[]):
 
     if loadouts != []:
         return random.choice(loadouts)
-    
+
     gearstring = list("AAAARWA")
-    
+
     p_knife = 0.05
     
     p_PSP = 0/4
@@ -86,7 +86,7 @@ def gunfight_loadout_generate(loadouts=[]):
     pistol_only = 6
 
     p_nades = 0.5
-    
+
     pick = -1
     if not(random.randint(1,100) <= p_knife*100):
         #not knife only
@@ -152,7 +152,7 @@ def gunfight_loadout_generate(loadouts=[]):
                 else:
                     if random.randint(0,1):
                         gearstring[6] = 'V'
-        
+
     return("".join(gearstring))
 
 def gunfight_print_loadout(gearstring,g_gear=""):
